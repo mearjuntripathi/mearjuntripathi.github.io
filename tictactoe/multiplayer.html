@@ -42,11 +42,25 @@
         const client = new Client();
         const multiplayer = new MultiPlayer();
         function join() {
-            // console.log(input.childNodes[1].value);
-            if(input.childNodes[1].value != '')
-                client.JoinUser(input.childNodes[1].value);
-            else alert('Enter Your Name');
+            const name = document.querySelector('#input input').value.trim();
+            if (!name) {
+                alert('Enter Your Name');
+                return;
+            }
+
+            // Show "Waiting for Match" UI immediately using your multiplayer class
+            multiplayer.waiting();
+
+            client.JoinUser(name); // Triggers multiplayer request to server
+
+            // Optional timeout after 15s
+            setTimeout(() => {
+                if (!multiplayer.started) {
+                    multiplayer.panel.innerHTML = "<h2>Server not responding. Try again later.</h2>";
+                }
+            }, 15000);
         }
+
     </script>
 </body>
 

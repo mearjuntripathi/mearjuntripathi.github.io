@@ -2,60 +2,67 @@ class MultiPlayer {
     constructor() {
         this.over = false;
         this.mode = '';
-        this.opponent = {name:"", id:""};
+        this.opponent = { name: "", id: "" };
         this.panel = document.querySelector('.game-box');
     }
 
     waiting() {
         this.panel.innerHTML = "";
-        let div = document.createElement('div');
-        div.classList.add('loading-spinner');
-        let h = document.createElement('h2');
-        h.innerText = "Matching ..."
-        // h.style = "";
-        this.panel.append(div);
-        this.panel.append(h);
+        const wrap = document.createElement('div');
+        wrap.classList.add('waiting-screen');
+
+        const spinner = document.createElement('div');
+        spinner.classList.add('loading-spinner');
+
+        const h = document.createElement('h2');
+        h.innerText = "Connecting to server, please wait...";
+
+        wrap.appendChild(spinner);
+        wrap.appendChild(h);
+        this.panel.appendChild(wrap);
     }
 
-    startGame(opponent,move,id) {
+
+    startGame(opponent, move, id) {
+        this.started = true; // <-- New flag to mark match has started
+
         this.mode = move ? 'x' : 'o';
         this.opponent.id = id;
         this.opponent.name = opponent;
+
         let start = new Audio('./assets/tune/begin.mp3');
         start.play();
         this.panel.innerHTML = "";
-        
+
         let div = document.createElement('div');
         div.classList.add('battle');
-        
+
         let div1 = document.createElement('div');
         div1.classList.add('p1');
         div1.innerHTML = "YOU";
-        
+
         let div2 = document.createElement('div');
         div2.classList.add('p2');
         div2.innerHTML = opponent;
-        
+
         div.append(div1);
         div.append('V/S');
         div.append(div2);
-        
+
         let h = document.createElement('h1');
         h.innerText = 'tic tac toe';
         h.classList.add('welcome-title');
         this.panel.append(h);
         this.panel.append(div);
-    
-        // Countdown timer
+
         let countdown = 5;
         let countdownInterval = setInterval(() => {
-            h.innerText = "Match begin in "+countdown;
+            h.innerText = "Match begins in " + countdown;
             countdown--;
-    
+
             if (countdown < 1) {
                 clearInterval(countdownInterval);
-    
-                // Triggering the animation after the countdown
+
                 setTimeout(() => {
                     h.innerText = 'Match Begin';
                     div.classList.add('show');
@@ -64,18 +71,19 @@ class MultiPlayer {
                     setTimeout(() => {
                         this.#showGameBox();
                     }, 2000);
-                }, 1000); // Adjust the delay as needed
+                }, 1000);
             }
-        }, 1000); // Update every second
-    }    
+        }, 1000);
+    }
 
-    #showGameBox(){
+
+    #showGameBox() {
         let message = document.createElement('div');
         message.classList.add('message');
         message.innerHTML = `<p>${this.mode == 'x' ? "YOU" : this.opponent.name} turn</p>`;
         let tictactoe = document.createElement('div');
         tictactoe.classList.add('tictactoe');
-        for(let i = 0 ; i < 9 ; i++){
+        for (let i = 0; i < 9; i++) {
             let cells = document.createElement('div');
             cells.classList.add('cell');
             tictactoe.append(cells);
@@ -84,15 +92,15 @@ class MultiPlayer {
         this.panel.append(message);
         let lobby = document.createElement('button');
         lobby.innerText = 'lobby';
-        lobby.addEventListener('click',()=>{
+        lobby.addEventListener('click', () => {
             location.reload();
         })
         this.panel.append(tictactoe);
         this.panel.append(lobby);
         this.#addEventListeners();
     }
-    
-    opponentMove(position){
+
+    opponentMove(position) {
         const cells = document.querySelectorAll('.cell');
         const message = document.querySelector('.message p');
         cells[position].classList.add(this.mode);
@@ -103,8 +111,8 @@ class MultiPlayer {
         this.#evaluateWinner();
     }
 
-    opponentLeave(){
-        if(!this.over){
+    opponentLeave() {
+        if (!this.over) {
             this.#hideTictactoe();
             const message = document.querySelector('.message p');
             message.classList.add('win');
@@ -126,14 +134,14 @@ class MultiPlayer {
                     blocks[cellIndex] = this.mode;
                     this.mode = 'o';
                     message.textContent = this.opponent.name + " turn";
-                    client.myMove(cellIndex,this.opponent.id);
+                    client.myMove(cellIndex, this.opponent.id);
                     this.#evaluateWinner();
                 }
             });
         });
     }
 
-    #evaluateWinner(){
+    #evaluateWinner() {
         const message = document.querySelector('.message p');
         let winner = check();
         if (winner !== null) {
@@ -160,7 +168,7 @@ class MultiPlayer {
                     tie();
                 }, 300);
             }
-        } 
+        }
     }
 
     #hideTictactoe() {
